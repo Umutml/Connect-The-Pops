@@ -5,6 +5,7 @@ using Random = System.Random;
 public class BoardManager : MonoBehaviour
 {
     private const float SpacingFactor = 0.85f;
+    private static readonly List<int> SpawnableElementValues = new() { 2, 4, 8, 16, 32, 64 };
     private static readonly List<int> ElementValues = new() { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
 
     [SerializeField] private Vector2 startCoordinate; // Start coordinate of the board
@@ -33,7 +34,7 @@ public class BoardManager : MonoBehaviour
 
     private int GetNumber()
     {
-        var index = ElementValues[_random.Next(ElementValues.Count)];
+        var index = SpawnableElementValues[_random.Next(SpawnableElementValues.Count)];
         return index;
     }
 }
