@@ -18,31 +18,29 @@ public class InputManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             _selectedElement = GetElementAtMousePosition();
-            if (_selectedElement != null)
-            {
-                _isDragging = true;
-                _lineRenderer.positionCount = 1;
-                _lineRenderer.SetPosition(0, _selectedElement.transform.position);
-                _selectedElement.SetCollider(false); // Disable the collider of the selected element
-                _selectedElements.Add(_selectedElement); // Add the first selected element to the list
-            }
+            if (_selectedElement == null) return;
+            
+            _isDragging = true;
+            _lineRenderer.positionCount = 1;
+            _lineRenderer.SetPosition(0, _selectedElement.transform.position);
+            _selectedElement.SetCollider(false); // Disable the collider of the selected element
+            _selectedElements.Add(_selectedElement); // Add the first selected element to the list
         }
         else if (_isDragging && Input.GetMouseButton(0))
         {
             var elementAtMouse = GetElementAtMousePosition();
-            if (elementAtMouse != null)
+            if (elementAtMouse == null) return;
+            
+            // If the distance between the mouse position and the last selected element is less than the range
+            if (Vector2.Distance(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
             {
-                // If the distance between the mouse position and the last selected element is less than the range
-                if (Vector2.Distance(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
+                if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
                 {
-                    if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
-                    {
-                        _lineRenderer.positionCount++;
-                        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, elementAtMouse.transform.position);
-                        _previousElement = elementAtMouse;
-                        elementAtMouse.SetCollider(false); // Disable the collider of the element at mouse position
-                        _selectedElements.Add(elementAtMouse);
-                    }
+                    _lineRenderer.positionCount++;
+                    _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, elementAtMouse.transform.position);
+                    _previousElement = elementAtMouse;
+                    elementAtMouse.SetCollider(false); // Disable the collider of the element at mouse position
+                    _selectedElements.Add(elementAtMouse);
                 }
             }
         }
