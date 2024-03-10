@@ -54,12 +54,6 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
-    }
-
     private void EnableColliders()
     {
         foreach (var element in _selectedElements)
@@ -93,17 +87,11 @@ public class InputManager : MonoBehaviour
         // Get the elements at the 0th and 1st positions
         var firstElement = GetElementAtPosition(_lineRenderer.GetPosition(0));
         var secondElement = GetElementAtPosition(_lineRenderer.GetPosition(1));
-
-        // Get the element at the last position
         var lastElement = GetElementAtPosition(_lineRenderer.GetPosition(_lineRenderer.positionCount - 1));
-
+        var newNumber = 0;
         if (firstElement != null && secondElement != null && lastElement != null)
         {
-            // Add the numbers of the first and second elements
-            var newNumber = firstElement.GetNumber() + secondElement.GetNumber();
-
-            // Set the number of the last element to the new number
-            lastElement.SetNumber(newNumber);
+            newNumber = firstElement.GetNumber() + secondElement.GetNumber();
         }
 
         // Destroy the elements at all positions except the last
@@ -113,15 +101,17 @@ public class InputManager : MonoBehaviour
             var hit = Physics2D.Raycast(position, Vector2.zero);
             if (hit.collider != null)
             {
-                _boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
-                hit.collider.transform.DOMove(lastElement.transform.position, 0.5f).OnComplete(() =>
+                hit.collider.transform.DOMove(lastElement.transform.position, 0.25f).OnComplete(() =>
                 {
+                    lastElement.SetNumber(newNumber);
+                    _boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
                     ObjectPool.Instance.Return(hit.collider.gameObject);
+                    _boardManager.MoveDownElements();
+                    _boardManager.FillEmptyCells();
                 });
             }
         }
 
-        _boardManager.RefillBoard();
         ResetTemporaryValues();
     }
 
@@ -142,4 +132,12 @@ public class InputManager : MonoBehaviour
 
         return null;
     }
+    
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
+    }
+#endif
 }

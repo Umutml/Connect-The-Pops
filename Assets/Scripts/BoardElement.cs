@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ public class BoardElement : MonoBehaviour
     [HideInInspector] public int elementNumber;
     [SerializeField] private TextMeshProUGUI numberText;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    private Vector3 _firstScale;
 
     private readonly Dictionary<int, Color> _numberToColor = new()
     {
@@ -31,6 +33,9 @@ public class BoardElement : MonoBehaviour
     private void OnEnable()
     {
         ProcessColorAndText();
+        _firstScale = transform.localScale;
+        transform.localScale = Vector3.zero;
+        transform.DOScale(_firstScale, 0.25f);
     }
 
     private Color GetColor(int value)
