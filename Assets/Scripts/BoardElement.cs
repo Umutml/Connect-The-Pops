@@ -30,46 +30,49 @@ public class BoardElement : MonoBehaviour
 
     private void OnEnable()
     {
-        spriteRenderer.color = GetColor(elementNumber);
-        numberText.text = elementNumber.ToString();
+        ProcessColorAndText();
     }
 
     private Color GetColor(int value)
     {
-        if (_numberToColor.TryGetValue(value, out var color))
-        {
-            return color;
-        }
-
-        return Color.white; // Default color
+        return _numberToColor.TryGetValue(value, out var color) ? color : Color.white; // Default color
     }
-    
+
     public int GetNumber()
     {
         return elementNumber;
     }
-    
+
     public void SetNumber(int value)
     {
         elementNumber = value;
+        ProcessColorAndText();
+    }
+
+    private void ProcessColorAndText()
+    {
+        SetColor(GetColor(elementNumber));
         UpdateText();
     }
-    
+
+    private void SetColor(Color color)
+    {
+        spriteRenderer.color = color;
+    }
+
     public void SetPosition(Vector2 position)
     {
         transform.position = position;
     }
-    
-    public void UpdateText()
+
+    private void UpdateText()
     {
         numberText.text = elementNumber.ToString();
     }
-    
+
     public void SetCollider(bool value)
     {
         var coll = GetComponent<CircleCollider2D>();
         coll.enabled = value;
     }
-    
-    
 }

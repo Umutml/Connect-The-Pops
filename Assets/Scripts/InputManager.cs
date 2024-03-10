@@ -5,10 +5,12 @@ public class InputManager : MonoBehaviour
 {
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private LineRenderer _lineRenderer;
-    private readonly List<BoardElement> _selectedElements = new();
+    [SerializeField] private List<BoardElement> _selectedElements = new();
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
+
+    private readonly float _selectionRange = 1f;
 
     private void Update()
     {
@@ -29,19 +31,17 @@ public class InputManager : MonoBehaviour
             var elementAtMouse = GetElementAtMousePosition();
             if (elementAtMouse != null)
             {
-                if (elementAtMouse == _previousElement)
+                // If the distance between the mouse position and the last selected element is less than the range
+                if (Vector2.Distance(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
                 {
-                    // If the mouse has moved back to the previous element, cancel the last step
-                    _lineRenderer.positionCount--;
-                    _previousElement = GetElementAtPosition(_lineRenderer.GetPosition(_lineRenderer.positionCount - 1));
-                }
-                else if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
-                {
-                    _lineRenderer.positionCount++;
-                    _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, elementAtMouse.transform.position);
-                    _previousElement = elementAtMouse;
-                    elementAtMouse.SetCollider(false); // Disable the collider of the element at mouse position
-                    _selectedElements.Add(elementAtMouse);
+                    if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
+                    {
+                        _lineRenderer.positionCount++;
+                        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, elementAtMouse.transform.position);
+                        _previousElement = elementAtMouse;
+                        elementAtMouse.SetCollider(false); // Disable the collider of the element at mouse position
+                        _selectedElements.Add(elementAtMouse);
+                    }
                 }
             }
         }
@@ -52,6 +52,12 @@ public class InputManager : MonoBehaviour
             DestroyElements();
             _lineRenderer.positionCount = 0;
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
     }
 
     private void EnableColliders()
@@ -80,6 +86,7 @@ public class InputManager : MonoBehaviour
     {
         if (_lineRenderer.positionCount < 2)
         {
+            ResetTemporaryValues(); // Reset temporary values before returning
             return; // If there are less than 2 positions, we can't perform the operation
         }
 
@@ -109,9 +116,18 @@ public class InputManager : MonoBehaviour
             var hit = Physics2D.Raycast(position, Vector2.zero);
             if (hit.collider != null)
             {
-                Destroy(hit.collider.gameObject);
+                ObjectPool.Instance.Return(hit.collider.gameObject);
             }
         }
+
+        ResetTemporaryValues();
+    }
+
+    private void ResetTemporaryValues()
+    {
+        _selectedElement = null;
+        _previousElement = null;
+        _selectedElements.Clear();
     }
 
     private BoardElement GetElementAtPosition(Vector3 position)
