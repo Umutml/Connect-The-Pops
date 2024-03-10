@@ -60,9 +60,15 @@ public class BoardElement : MonoBehaviour
         transform.position = position;
     }
     
-    private void UpdateText()
+    public void UpdateText()
     {
         numberText.text = elementNumber.ToString();
+    }
+    
+    public void SetCollider(bool value)
+    {
+        var coll = GetComponent<CircleCollider2D>();
+        coll.enabled = value;
     }
     
     
