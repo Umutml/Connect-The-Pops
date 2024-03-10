@@ -5,10 +5,11 @@ public class InputManager : MonoBehaviour
 {
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private LineRenderer _lineRenderer;
-    [SerializeField] private List<BoardElement> _selectedElements = new();
+    private List<BoardElement> _selectedElements = new();
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
+    [SerializeField] private BoardManager _boardManager;
 
     private readonly float _selectionRange = 1f;
 
@@ -116,11 +117,13 @@ public class InputManager : MonoBehaviour
             var hit = Physics2D.Raycast(position, Vector2.zero);
             if (hit.collider != null)
             {
+                _boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
                 ObjectPool.Instance.Return(hit.collider.gameObject);
             }
         }
 
         ResetTemporaryValues();
+        _boardManager.RefillBoard();
     }
 
     private void ResetTemporaryValues()

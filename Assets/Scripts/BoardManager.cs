@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Random = System.Random;
 
@@ -28,6 +29,32 @@ public class BoardManager : MonoBehaviour
                 _gameBoard[i, j].transform.position = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + j * SpacingFactor);
             }
         }
+    }
+    
+    
+    public async void RefillBoard()
+    {
+        await Task.Delay(1000);
+        for (var i = 0; i < _gameBoard.GetLength(0); i++)
+        {
+            for (var j = 0; j < _gameBoard.GetLength(1); j++)
+            {
+                if (_gameBoard[i, j] == null || _gameBoard[i, j].activeSelf == false) // Check if the cell is null or inactive
+                {
+                    _gameBoard[i, j] = ObjectPool.Instance.Get();
+                    _gameBoard[i, j].GetComponent<BoardElement>().SetNumber(GetNumber());
+                    _gameBoard[i, j].SetActive(true);
+                    _gameBoard[i, j].transform.position = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + j * SpacingFactor);
+                }
+            }
+        }
+    }
+    
+    public void SetCellToNull(Vector2 position)
+    {
+        var x = Mathf.RoundToInt((position.x - _startCoordinate.x) / SpacingFactor);
+        var y = Mathf.RoundToInt((position.y - _startCoordinate.y) / SpacingFactor);
+        _gameBoard[x, y] = null;
     }
 
     private int GetNumber()

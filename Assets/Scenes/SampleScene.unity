@@ -331,6 +331,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mainCamera: {fileID: 519420031}
   _lineRenderer: {fileID: 1488925843}
+  _selectedElements: []
+  _boardManager: {fileID: 2043727096}
 --- !u!4 &1488925842
 Transform:
   m_ObjectHideFlags: 0
@@ -507,7 +509,7 @@ GameObject:
   - component: {fileID: 2043727097}
   - component: {fileID: 2043727096}
   m_Layer: 0
-  m_Name: GameBoard
+  m_Name: BoardManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
