@@ -43,4 +43,27 @@ public class BoardElement : MonoBehaviour
 
         return Color.white; // Default color
     }
+    
+    public int GetNumber()
+    {
+        return elementNumber;
+    }
+    
+    public void SetNumber(int value)
+    {
+        elementNumber = value;
+        UpdateText();
+    }
+    
+    public void SetPosition(Vector2 position)
+    {
+        transform.position = position;
+    }
+    
+    private void UpdateText()
+    {
+        numberText.text = elementNumber.ToString();
+    }
+    
+    
 }

@@ -19,10 +19,10 @@ public class ObjectPool : SingletonGeneric<ObjectPool>
     {
         elementPrefab = prefab;
 
-        // Pre-instantiate initialSize number of objects
+        // Pre instantiate initialSize number of objects
         for (var i = 0; i < initialSize; i++)
         {
-            var obj = Instantiate(prefab);
+            var obj = Instantiate(prefab,this.transform);
             obj.SetActive(false);
             _pool.Push(obj);
         }
@@ -38,7 +38,7 @@ public class ObjectPool : SingletonGeneric<ObjectPool>
         }
 
         // If the pool is empty, instantiate a new object
-        return Instantiate(elementPrefab);
+        return Instantiate(elementPrefab, this.transform);
     }
 
     public void Return(GameObject obj)
