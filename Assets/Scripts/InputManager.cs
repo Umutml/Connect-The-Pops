@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -106,13 +107,19 @@ public class InputManager : MonoBehaviour
                     lastElement.SetNumber(newNumber);
                     _boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
                     ObjectPool.Instance.Return(hit.collider.gameObject);
-                    _boardManager.MoveDownElements();
-                    _boardManager.FillEmptyCells();
+                    MoveDownAndFill();
                 });
             }
         }
 
         ResetTemporaryValues();
+    }
+    
+    private async void MoveDownAndFill()
+    {
+        await Task.Delay(100);
+        _boardManager.MoveDownElements();
+        _boardManager.FillEmptyCells();
     }
 
     private void ResetTemporaryValues()
