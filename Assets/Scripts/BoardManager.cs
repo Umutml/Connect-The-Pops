@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using Random = System.Random;
 
@@ -32,19 +33,29 @@ public class BoardManager : MonoBehaviour
     }
     
     
-    public async void RefillBoard()
+    public void RefillBoard()
     {
-        await Task.Delay(1000);
-        for (var i = 0; i < _gameBoard.GetLength(0); i++)
+        var moved = true;
+        while (moved)
         {
-            for (var j = 0; j < _gameBoard.GetLength(1); j++)
+            moved = false;
+            for (var i = 0; i < _gameBoard.GetLength(0); i++)
             {
-                if (_gameBoard[i, j] == null || _gameBoard[i, j].activeSelf == false) // Check if the cell is null or inactive
+                for (var j = 0; j < _gameBoard.GetLength(1); j++)
                 {
-                    _gameBoard[i, j] = ObjectPool.Instance.Get();
-                    _gameBoard[i, j].GetComponent<BoardElement>().SetNumber(GetNumber());
-                    _gameBoard[i, j].SetActive(true);
-                    _gameBoard[i, j].transform.position = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + j * SpacingFactor);
+                    if (_gameBoard[i, j] != null && _gameBoard[i, j].activeSelf) continue; // Check if the cell is null or inactive return if needed
+                    
+                    // move all the elements above the empty cell down
+                    for (var k = j; k < _gameBoard.GetLength(1) - 1; k++)
+                    {
+                        if (_gameBoard[i, k + 1] == null) continue; // Check if the cell is null
+                            
+                        _gameBoard[i, k] = _gameBoard[i, k + 1];
+                        _gameBoard[i, k + 1] = null;
+                        var targetPosition = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + k * SpacingFactor);
+                        _gameBoard[i, k].transform.DOMove(targetPosition, 0.35f).SetEase(Ease.InOutQuad); // Use DOMove to animate the movement
+                        moved = true;
+                    }
                 }
             }
         }

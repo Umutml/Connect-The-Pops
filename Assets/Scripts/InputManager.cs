@@ -1,17 +1,18 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private LineRenderer _lineRenderer;
-    private List<BoardElement> _selectedElements = new();
+    [SerializeField] private BoardManager _boardManager;
+    private readonly List<BoardElement> _selectedElements = new();
+
+    private readonly float _selectionRange = 1f;
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
-    [SerializeField] private BoardManager _boardManager;
-
-    private readonly float _selectionRange = 1f;
 
     private void Update()
     {
@@ -19,7 +20,7 @@ public class InputManager : MonoBehaviour
         {
             _selectedElement = GetElementAtMousePosition();
             if (_selectedElement == null) return;
-            
+
             _isDragging = true;
             _lineRenderer.positionCount = 1;
             _lineRenderer.SetPosition(0, _selectedElement.transform.position);
@@ -30,7 +31,7 @@ public class InputManager : MonoBehaviour
         {
             var elementAtMouse = GetElementAtMousePosition();
             if (elementAtMouse == null) return;
-            
+
             // If the distance between the mouse position and the last selected element is less than the range
             if (Vector2.Distance(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
             {
@@ -93,19 +94,16 @@ public class InputManager : MonoBehaviour
         var firstElement = GetElementAtPosition(_lineRenderer.GetPosition(0));
         var secondElement = GetElementAtPosition(_lineRenderer.GetPosition(1));
 
-        if (firstElement != null && secondElement != null)
+        // Get the element at the last position
+        var lastElement = GetElementAtPosition(_lineRenderer.GetPosition(_lineRenderer.positionCount - 1));
+
+        if (firstElement != null && secondElement != null && lastElement != null)
         {
             // Add the numbers of the first and second elements
             var newNumber = firstElement.GetNumber() + secondElement.GetNumber();
 
-            // Get the element at the last position
-            var lastElement = GetElementAtPosition(_lineRenderer.GetPosition(_lineRenderer.positionCount - 1));
-
-            if (lastElement != null)
-            {
-                // Set the number of the last element to the new number
-                lastElement.SetNumber(newNumber);
-            }
+            // Set the number of the last element to the new number
+            lastElement.SetNumber(newNumber);
         }
 
         // Destroy the elements at all positions except the last
@@ -116,12 +114,15 @@ public class InputManager : MonoBehaviour
             if (hit.collider != null)
             {
                 _boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
-                ObjectPool.Instance.Return(hit.collider.gameObject);
+                hit.collider.transform.DOMove(lastElement.transform.position, 0.5f).OnComplete(() =>
+                {
+                    ObjectPool.Instance.Return(hit.collider.gameObject);
+                });
             }
         }
 
-        ResetTemporaryValues();
         _boardManager.RefillBoard();
+        ResetTemporaryValues();
     }
 
     private void ResetTemporaryValues()
