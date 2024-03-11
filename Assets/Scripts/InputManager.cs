@@ -144,7 +144,7 @@ public class InputManager : MonoBehaviour
     
     private async void MoveDownAndFill()
     {
-        await Task.Delay(275);
+        await Task.Delay(300);
         boardManager.MoveDownElements();
         boardManager.FillEmptyCells();
     }

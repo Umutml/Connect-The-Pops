@@ -9,7 +9,10 @@ public class BoardElement : MonoBehaviour
     [SerializeField] private TextMeshProUGUI numberText;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private GameObject ringShapeTexture;
+    [SerializeField] private CircleCollider2D circleCollider2D;
 
+    private Vector3 _defaultScale;
+    
     private readonly Dictionary<int, Color> _numberToColor = new()
     {
         { 2, new Color(0.91f, 0.4f, 0.56f) },
@@ -25,11 +28,11 @@ public class BoardElement : MonoBehaviour
         { 2048, new Color(0.91f, 0.4f, 0.56f) }
     };
 
-    private Vector3 _defaultScale;
 
     private void Awake()
     {
         gameObject.SetActive(false);
+        circleCollider2D = GetComponent<CircleCollider2D>();
         _defaultScale = transform.localScale;
     }
 
@@ -77,11 +80,6 @@ public class BoardElement : MonoBehaviour
         spriteRenderer.color = color;
     }
 
-    public void SetPosition(Vector2 position)
-    {
-        transform.position = position;
-    }
-
     private void UpdateText()
     {
         numberText.text = FormatNumberText(elementNumber);
@@ -103,7 +101,6 @@ public class BoardElement : MonoBehaviour
 
     public void SetCollider(bool value)
     {
-        var coll = GetComponent<CircleCollider2D>();
-        coll.enabled = value;
+        circleCollider2D.enabled = value;
     }
 }
