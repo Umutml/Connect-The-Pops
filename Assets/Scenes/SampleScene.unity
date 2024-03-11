@@ -333,6 +333,7 @@ MonoBehaviour:
   lineRenderer: {fileID: 1488925843}
   lineMaterial: {fileID: 2100000, guid: 6ab72f6a6e8ce5841a82f3dc0d269598, type: 2}
   boardManager: {fileID: 2043727096}
+  isFilling: 0
 --- !u!4 &1488925842
 Transform:
   m_ObjectHideFlags: 0
@@ -525,6 +526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b8beb4b99f77d246b00f5c229c07948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputManager: {fileID: 1488925841}
 --- !u!4 &2043727097
 Transform:
   m_ObjectHideFlags: 0

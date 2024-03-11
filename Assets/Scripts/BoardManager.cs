@@ -14,6 +14,7 @@ public class BoardManager : MonoBehaviour
 
     private readonly GameObject[,] _gameBoard = new GameObject[5, 5]; // board size (5x5)
     private readonly Random _random = new();
+    [SerializeField] private InputManager inputManager;
 
     private void Start()
     {
@@ -33,7 +34,7 @@ public class BoardManager : MonoBehaviour
     }
     
     
-    public void MoveDownElements()
+    public async void MoveDownElements()
     {
         for (var i = 0; i < _gameBoard.GetLength(0); i++)
         {
@@ -53,16 +54,17 @@ public class BoardManager : MonoBehaviour
                     _gameBoard[i, emptyCellIndex] = _gameBoard[i, j];
                     _gameBoard[i, j] = null;
                     var targetPosition = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + emptyCellIndex * SpacingFactor);
-                    _gameBoard[i, emptyCellIndex].transform.DOMove(targetPosition, 0.25f).SetEase(Ease.InOutQuad);
+                    _gameBoard[i, emptyCellIndex].transform.DOMove(targetPosition, 0.15f).SetEase(Ease.InOutQuad);
                     emptyCellIndex++;
                 }
             }
         }
+        await Task.Delay(151); // Wait for 151 milliseconds for animations
+        FillEmptyCells();
     }
     
-    public async void FillEmptyCells()
+    private async void FillEmptyCells()
     {
-        await Task.Delay(300);
         for (var i = 0; i < _gameBoard.GetLength(0); i++)
         {
             for (var j = 0; j < _gameBoard.GetLength(1); j++)
@@ -77,6 +79,7 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+        inputManager.isFilling = false;
     }
     
     public void SetCellToNull(Vector2 position)

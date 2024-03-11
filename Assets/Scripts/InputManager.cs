@@ -16,6 +16,7 @@ public class InputManager : MonoBehaviour
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
+    public bool isFilling;
 
     private void Update()
     {
@@ -24,6 +25,7 @@ public class InputManager : MonoBehaviour
 
     private void BallController()
     {
+        if (isFilling) return;
         if (Input.GetMouseButtonDown(0))
         {
             _selectedElement = GetElementAtMousePosition();
@@ -144,9 +146,9 @@ public class InputManager : MonoBehaviour
     
     private async void MoveDownAndFill()
     {
-        await Task.Delay(300);
+        isFilling = true;
+        await Task.Delay(251); // Wait for before moving down the elements for animations
         boardManager.MoveDownElements();
-        boardManager.FillEmptyCells();
     }
 
     private void ResetTemporaryValues()
