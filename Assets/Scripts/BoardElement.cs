@@ -8,7 +8,6 @@ public class BoardElement : MonoBehaviour
     [HideInInspector] public int elementNumber;
     [SerializeField] private TextMeshProUGUI numberText;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    private Vector3 _firstScale;
 
     private readonly Dictionary<int, Color> _numberToColor = new()
     {
@@ -25,20 +24,32 @@ public class BoardElement : MonoBehaviour
         { 2048, new Color(0.91f, 0.4f, 0.56f) }
     };
 
+    private Vector3 _defaultScale;
+
     private void Awake()
     {
         gameObject.SetActive(false);
+        _defaultScale = transform.localScale;
     }
 
     private void OnEnable()
     {
         ProcessColorAndText();
-        _firstScale = transform.localScale;
         transform.localScale = Vector3.zero;
-        transform.DOScale(_firstScale, 0.25f);
+        transform.DOScale(_defaultScale, 0.25f);
     }
 
-    private Color GetColor(int value)
+    public void Select()
+    {
+        transform.localScale = _defaultScale * 1.1f;
+    }
+
+    public void Deselect()
+    {
+        transform.localScale = _defaultScale;
+    }
+
+    public Color GetColor(int value)
     {
         return _numberToColor.TryGetValue(value, out var color) ? color : Color.white; // Default color
     }
@@ -72,7 +83,19 @@ public class BoardElement : MonoBehaviour
 
     private void UpdateText()
     {
-        numberText.text = elementNumber.ToString();
+        numberText.text = FormatNumberText(elementNumber);
+    }
+
+    private string FormatNumberText(int number)
+    {
+        if (elementNumber >= 1000)
+        {
+            var thousands = elementNumber / 1000;
+            var formattedText = thousands + "K";
+            return formattedText;
+        }
+
+        return elementNumber.ToString();
     }
 
     public void SetCollider(bool value)

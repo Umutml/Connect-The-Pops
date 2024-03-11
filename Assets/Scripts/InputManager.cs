@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class InputManager : MonoBehaviour
 {
-    [SerializeField] private Camera _mainCamera;
-    [SerializeField] private LineRenderer _lineRenderer;
-    [SerializeField] private BoardManager _boardManager;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private Material lineMaterial;
+    [SerializeField] private BoardManager boardManager;
     private readonly List<BoardElement> _selectedElements = new();
 
     private readonly float _selectionRange = 1f;
@@ -17,14 +19,20 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
+        BallController();
+    }
+
+    private void BallController()
+    {
         if (Input.GetMouseButtonDown(0))
         {
             _selectedElement = GetElementAtMousePosition();
             if (_selectedElement == null) return;
-
+            SetLineRendererColor();
+            _selectedElement.Select(); // Select the element scale it up
             _isDragging = true;
-            _lineRenderer.positionCount = 1;
-            _lineRenderer.SetPosition(0, _selectedElement.transform.position);
+            lineRenderer.positionCount = 1;
+            lineRenderer.SetPosition(0, _selectedElement.transform.position);
             _selectedElement.SetCollider(false); // Disable the collider of the selected element
             _selectedElements.Add(_selectedElement); // Add the first selected element to the list
         }
@@ -34,14 +42,15 @@ public class InputManager : MonoBehaviour
             if (elementAtMouse == null) return;
 
             // If the distance between the mouse position and the last selected element is less than the range
-            if (Vector2.Distance(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
+            if (Vector2.Distance(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
             {
                 if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
                 {
-                    _lineRenderer.positionCount++;
-                    _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, elementAtMouse.transform.position);
+                    lineRenderer.positionCount++;
+                    lineRenderer.SetPosition(lineRenderer.positionCount - 1, elementAtMouse.transform.position);
                     _previousElement = elementAtMouse;
                     elementAtMouse.SetCollider(false); // Disable the collider of the element at mouse position
+                    elementAtMouse.Select(); // Select the element scale it up
                     _selectedElements.Add(elementAtMouse);
                 }
             }
@@ -50,9 +59,26 @@ public class InputManager : MonoBehaviour
         {
             _isDragging = false;
             EnableColliders(); // Enable the colliders before destroying the elements
+            DeselectAllElements(); // Deselect all the elements scale them down
             DestroyElements();
-            _lineRenderer.positionCount = 0;
+            lineRenderer.positionCount = 0;
         }
+    }
+    
+    private void DeselectAllElements()
+    {
+        foreach (var element in _selectedElements)
+        {
+            element.Deselect();
+        }
+    }
+    
+    private void SetLineRendererColor()
+    {
+        if (!lineRenderer.material)
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        Color color = _selectedElement.GetColor(_selectedElement.GetNumber());
+        lineRenderer.material.color = color;
     }
 
     private void EnableColliders()
@@ -67,7 +93,7 @@ public class InputManager : MonoBehaviour
 
     private BoardElement GetElementAtMousePosition()
     {
-        Vector2 mousePosition = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         var hit = Physics2D.Raycast(mousePosition, Vector2.zero);
         if (hit.collider != null)
         {
@@ -79,16 +105,16 @@ public class InputManager : MonoBehaviour
 
     private void DestroyElements()
     {
-        if (_lineRenderer.positionCount < 2)
+        if (lineRenderer.positionCount < 2)
         {
             ResetTemporaryValues(); // Reset temporary values before returning
             return; // If there are less than 2 positions, we can't perform the operation
         }
 
         // Get the elements at the 0th and 1st positions
-        var firstElement = GetElementAtPosition(_lineRenderer.GetPosition(0));
-        var secondElement = GetElementAtPosition(_lineRenderer.GetPosition(1));
-        var lastElement = GetElementAtPosition(_lineRenderer.GetPosition(_lineRenderer.positionCount - 1));
+        var firstElement = GetElementAtPosition(lineRenderer.GetPosition(0));
+        var secondElement = GetElementAtPosition(lineRenderer.GetPosition(1));
+        var lastElement = GetElementAtPosition(lineRenderer.GetPosition(lineRenderer.positionCount - 1));
         var newNumber = 0;
         if (firstElement != null && secondElement != null && lastElement != null)
         {
@@ -96,30 +122,30 @@ public class InputManager : MonoBehaviour
         }
 
         // Destroy the elements at all positions except the last
-        for (var i = 0; i < _lineRenderer.positionCount - 1; i++) // -1 added to exclude the last position
+        for (var i = 0; i < lineRenderer.positionCount - 1; i++) // -1 added to exclude the last position
         {
-            var position = _lineRenderer.GetPosition(i);
+            var position = lineRenderer.GetPosition(i);
             var hit = Physics2D.Raycast(position, Vector2.zero);
             if (hit.collider != null)
             {
                 hit.collider.transform.DOMove(lastElement.transform.position, 0.25f).OnComplete(() =>
                 {
                     lastElement.SetNumber(newNumber);
-                    _boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
+                    lastElement.Deselect(); // Deselect the last element scale it down
+                    boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
                     ObjectPool.Instance.Return(hit.collider.gameObject);
-                    MoveDownAndFill();
                 });
             }
         }
-
+        MoveDownAndFill();
         ResetTemporaryValues();
     }
     
     private async void MoveDownAndFill()
     {
-        await Task.Delay(100);
-        _boardManager.MoveDownElements();
-        _boardManager.FillEmptyCells();
+        await Task.Delay(275);
+        boardManager.MoveDownElements();
+        boardManager.FillEmptyCells();
     }
 
     private void ResetTemporaryValues()
@@ -144,7 +170,7 @@ public class InputManager : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(_mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
+        Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
     }
 #endif
 }

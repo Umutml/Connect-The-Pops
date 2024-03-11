@@ -329,10 +329,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b03b64481fb1fa94d9e652afbbdd8e6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainCamera: {fileID: 519420031}
-  _lineRenderer: {fileID: 1488925843}
-  _selectedElements: []
-  _boardManager: {fileID: 2043727096}
+  mainCamera: {fileID: 519420031}
+  lineRenderer: {fileID: 1488925843}
+  lineMaterial: {fileID: 2100000, guid: 6ab72f6a6e8ce5841a82f3dc0d269598, type: 2}
+  boardManager: {fileID: 2043727096}
 --- !u!4 &1488925842
 Transform:
   m_ObjectHideFlags: 0
@@ -390,9 +390,7 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Positions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.2
@@ -413,7 +411,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
+      key0: {r: 1, g: 1, b: 1, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -437,7 +435,7 @@ LineRenderer:
       atime5: 0
       atime6: 0
       atime7: 0
-      m_Mode: 0
+      m_Mode: 1
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
