@@ -35,27 +35,26 @@ public class BoardManager : MonoBehaviour
     
     public void MoveDownElements()
     {
-        var moved = true;
-        while (moved)
+        for (var i = 0; i < _gameBoard.GetLength(0); i++)
         {
-            moved = false;
-            for (var i = 0; i < _gameBoard.GetLength(0); i++)
+            int emptyCellIndex = -1;
+
+            for (var j = 0; j < _gameBoard.GetLength(1); j++)
             {
-                for (var j = 0; j < _gameBoard.GetLength(1); j++)
+                if (_gameBoard[i, j] == null || !_gameBoard[i, j].activeSelf)
                 {
-                    if (_gameBoard[i, j] != null && _gameBoard[i, j].activeSelf) continue; // Check if the cell is null or inactive and continue
-                    
-                    // move all the elements above the empty cell down
-                    for (var k = j; k < _gameBoard.GetLength(1) - 1; k++)
+                    if (emptyCellIndex == -1)
                     {
-                        if (_gameBoard[i, k + 1] == null) continue; // Check if the cell is null
-                            
-                        _gameBoard[i, k] = _gameBoard[i, k + 1];
-                        _gameBoard[i, k + 1] = null;
-                        var targetPosition = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + k * SpacingFactor);
-                        _gameBoard[i, k].transform.DOMove(targetPosition, 0.25f).SetEase(Ease.InOutQuad); // Use DOMove to animate the movement
-                        moved = true;
+                        emptyCellIndex = j;
                     }
+                }
+                else if (emptyCellIndex != -1)
+                {
+                    _gameBoard[i, emptyCellIndex] = _gameBoard[i, j];
+                    _gameBoard[i, j] = null;
+                    var targetPosition = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + emptyCellIndex * SpacingFactor);
+                    _gameBoard[i, emptyCellIndex].transform.DOMove(targetPosition, 0.25f).SetEase(Ease.InOutQuad);
+                    emptyCellIndex++;
                 }
             }
         }
