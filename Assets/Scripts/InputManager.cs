@@ -107,6 +107,7 @@ public class InputManager : MonoBehaviour
     {
         if (lineRenderer.positionCount < 2)
         {
+            DeselectAllElements();
             ResetTemporaryValues(); // Reset temporary values before returning
             return; // If there are less than 2 positions, we can't perform the operation
         }

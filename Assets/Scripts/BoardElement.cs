@@ -8,6 +8,7 @@ public class BoardElement : MonoBehaviour
     [HideInInspector] public int elementNumber;
     [SerializeField] private TextMeshProUGUI numberText;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private GameObject ringShapeTexture;
 
     private readonly Dictionary<int, Color> _numberToColor = new()
     {
@@ -36,7 +37,7 @@ public class BoardElement : MonoBehaviour
     {
         ProcessColorAndText();
         transform.localScale = Vector3.zero;
-        transform.DOScale(_defaultScale, 0.25f);
+        transform.DOScale(_defaultScale, 0.3f);
     }
 
     public void Select()
@@ -88,13 +89,15 @@ public class BoardElement : MonoBehaviour
 
     private string FormatNumberText(int number)
     {
-        if (elementNumber >= 1000)
+        if (number >= 1000)
         {
-            var thousands = elementNumber / 1000;
+            ringShapeTexture.SetActive(true);
+            var thousands = number / 1000;
             var formattedText = thousands + "K";
             return formattedText;
         }
-
+        
+        ringShapeTexture.SetActive(false);
         return elementNumber.ToString();
     }
 
