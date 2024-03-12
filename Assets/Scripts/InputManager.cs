@@ -16,6 +16,7 @@ public class InputManager : MonoBehaviour
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
+    public bool isFilling;
 
     private void Update()
     {
@@ -24,6 +25,7 @@ public class InputManager : MonoBehaviour
 
     private void BallController()
     {
+        if (isFilling) return;
         if (Input.GetMouseButtonDown(0))
         {
             _selectedElement = GetElementAtMousePosition();
@@ -144,9 +146,9 @@ public class InputManager : MonoBehaviour
     
     private async void MoveDownAndFill()
     {
-        await Task.Delay(300);
+        isFilling = true;
+        await Task.Delay(251); // Wait for before moving down the elements for animations
         boardManager.MoveDownElements();
-        boardManager.FillEmptyCells();
     }
 
     private void ResetTemporaryValues()
@@ -170,8 +172,14 @@ public class InputManager : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
+        Vector3 mousePosition = Input.mousePosition;
+        Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+        if (screenRect.Contains(mousePosition))
+        {
+            Gizmos.color = Color.blue;
+            // Draw the selection range
+            Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(mousePosition), _selectionRange);
+        }
     }
 #endif
 }
