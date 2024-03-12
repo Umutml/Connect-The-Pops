@@ -172,8 +172,14 @@ public class InputManager : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
+        Vector3 mousePosition = Input.mousePosition;
+        Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+        if (screenRect.Contains(mousePosition))
+        {
+            Gizmos.color = Color.blue;
+            // Draw the selection range
+            Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(mousePosition), _selectionRange);
+        }
     }
 #endif
 }
