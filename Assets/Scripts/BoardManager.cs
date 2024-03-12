@@ -63,7 +63,7 @@ public class BoardManager : MonoBehaviour
         FillEmptyCells();
     }
     
-    private async void FillEmptyCells()
+    private void FillEmptyCells()
     {
         for (var i = 0; i < _gameBoard.GetLength(0); i++)
         {

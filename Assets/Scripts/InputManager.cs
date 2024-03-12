@@ -26,33 +26,37 @@ public class InputManager : MonoBehaviour
     private void BallController()
     {
         if (isFilling) return;
+
+        Vector2 mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        BoardElement elementAtMouse = GetElementAtMousePosition();
+
         if (Input.GetMouseButtonDown(0))
         {
-            _selectedElement = GetElementAtMousePosition();
+            _selectedElement = elementAtMouse;
             if (_selectedElement == null) return;
+
             SetLineRendererColor();
-            _selectedElement.Select(); // Select the element scale it up
+            _selectedElement.Select();
             _isDragging = true;
             lineRenderer.positionCount = 1;
             lineRenderer.SetPosition(0, _selectedElement.transform.position);
-            _selectedElement.SetCollider(false); // Disable the collider of the selected element
-            _selectedElements.Add(_selectedElement); // Add the first selected element to the list
+            _selectedElement.SetCollider(false);
+            _selectedElements.Add(_selectedElement);
         }
         else if (_isDragging && Input.GetMouseButton(0))
         {
-            var elementAtMouse = GetElementAtMousePosition();
             if (elementAtMouse == null) return;
 
-            // If the distance between the mouse position and the last selected element is less than the range
-            if (Vector2.Distance(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
+            BoardElement lastSelectedElement = _selectedElements[_selectedElements.Count - 1];
+            if (Vector2.Distance(mouseWorldPosition, lastSelectedElement.transform.position) <= _selectionRange)
             {
                 if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
                 {
                     lineRenderer.positionCount++;
                     lineRenderer.SetPosition(lineRenderer.positionCount - 1, elementAtMouse.transform.position);
                     _previousElement = elementAtMouse;
-                    elementAtMouse.SetCollider(false); // Disable the collider of the element at mouse position
-                    elementAtMouse.Select(); // Select the element scale it up
+                    elementAtMouse.SetCollider(false);
+                    elementAtMouse.Select();
                     _selectedElements.Add(elementAtMouse);
                 }
             }
@@ -60,8 +64,8 @@ public class InputManager : MonoBehaviour
         else if (_isDragging && Input.GetMouseButtonUp(0))
         {
             _isDragging = false;
-            EnableColliders(); // Enable the colliders before destroying the elements
-            DeselectAllElements(); // Deselect all the elements scale them down
+            EnableColliders();
+            DeselectAllElements();
             DestroyElements();
             lineRenderer.positionCount = 0;
         }
