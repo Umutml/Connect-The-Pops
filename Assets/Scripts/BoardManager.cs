@@ -10,7 +10,7 @@ public class BoardManager : MonoBehaviour
     private const float SpacingFactor = 0.85f;
     private static readonly List<int> SpawnableElementValues = new() { 2, 4, 8, 16, 32, 64 };
     public static readonly List<int> ElementValues = new() { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
-    [FormerlySerializedAs("inputManager")] [SerializeField] private PlayerController playerController;
+    [SerializeField] private PlayerController playerController;
 
     private readonly GameObject[,] _gameBoard = new GameObject[5, 5]; // board size (5x5)
     private readonly Random _random = new();
