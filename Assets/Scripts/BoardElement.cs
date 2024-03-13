@@ -82,7 +82,7 @@ public class BoardElement : MonoBehaviour
 
     private void UpdateText()
     {
-        numberText.text = FormatNumberText(elementNumber);
+        numberText.SetText(FormatNumberText(elementNumber));
     }
 
     private string FormatNumberText(int number)
