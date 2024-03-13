@@ -113,7 +113,6 @@ public class PlayerController : MonoBehaviour
     {
         if (_selectedElements.Count >= 2)
         {
-            Debug.Log("Removing the last element");
             lineRenderer.positionCount--;
             lineRenderer.SetPosition(lineRenderer.positionCount - 1, _selectedElements[^2].transform.position);
             _selectedElements[_selectedElements.Count - 1].Deselect();
@@ -121,7 +120,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.Log("Removing the last element and clearing the list");
             _selectedElements.Clear();
             lineRenderer.positionCount = 0;
             _selectedElements[_selectedElements.Count - 1].Deselect();
