@@ -54,12 +54,12 @@ public class BoardManager : MonoBehaviour
                     _gameBoard[i, emptyCellIndex] = _gameBoard[i, j];
                     _gameBoard[i, j] = null;
                     var targetPosition = new Vector2(_startCoordinate.x + i * SpacingFactor, _startCoordinate.y + emptyCellIndex * SpacingFactor);
-                    _gameBoard[i, emptyCellIndex].transform.DOMove(targetPosition, 0.25f).SetEase(Ease.InOutQuad);
+                    _gameBoard[i, emptyCellIndex].transform.DOMove(targetPosition, 0.35f).SetEase(Ease.InOutQuad);
                     emptyCellIndex++;
                 }
             }
         }
-        await Task.Delay(251); // Wait for 151 milliseconds for animations
+        await Task.Delay(351); // Wait for 151 milliseconds for animations
         FillEmptyCells();
     }
     

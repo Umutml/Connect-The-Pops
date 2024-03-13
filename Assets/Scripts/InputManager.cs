@@ -11,6 +11,7 @@ public class InputManager : MonoBehaviour
     [SerializeField] private Material lineMaterial;
     [SerializeField] private BoardManager boardManager;
     private readonly List<BoardElement> _selectedElements = new();
+    [SerializeField] private LayerMask layerMask;
 
     private readonly float _selectionRange = 1f;
     private bool _isDragging;
@@ -103,7 +104,7 @@ public class InputManager : MonoBehaviour
     private BoardElement GetElementAtTouchPosition(Vector2 touchPosition)
     {
         Vector2 worldPosition = mainCamera.ScreenToWorldPoint(touchPosition);
-        var hit = Physics2D.Raycast(worldPosition, Vector2.zero);
+        var hit = Physics2D.Raycast(worldPosition, Vector2.zero, float.MaxValue, layerMask);
         if (hit.collider != null)
         {
             return hit.collider.GetComponent<BoardElement>();
@@ -135,7 +136,7 @@ public class InputManager : MonoBehaviour
         for (var i = 0; i < lineRenderer.positionCount - 1; i++) // -1 added to exclude the last position
         {
             var position = lineRenderer.GetPosition(i);
-            var hit = Physics2D.Raycast(position, Vector2.zero);
+            var hit = Physics2D.Raycast(position, Vector2.zero, float.MaxValue, layerMask);
             if (hit.collider != null)
             {
                 hit.collider.transform.DOMove(lastElement.transform.position, 0.25f).OnComplete(() =>
@@ -167,7 +168,7 @@ public class InputManager : MonoBehaviour
 
     private BoardElement GetElementAtPosition(Vector3 position)
     {
-        var hit = Physics2D.Raycast(position, Vector2.zero);
+        var hit = Physics2D.Raycast(position, Vector2.zero , float.MaxValue, layerMask);
         if (hit.collider != null)
         {
             return hit.collider.TryGetComponent(out BoardElement element) ? element : null;
@@ -179,14 +180,8 @@ public class InputManager : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        Vector3 mousePosition = Input.mousePosition;
-        Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
-        if (screenRect.Contains(mousePosition))
-        {
-            Gizmos.color = Color.blue;
-            // Draw the selection range
-            Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(mousePosition), _selectionRange);
-        }
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
     }
 #endif
 }
