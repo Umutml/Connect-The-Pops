@@ -2,35 +2,34 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-public class InputManager : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Material lineMaterial;
     [SerializeField] private BoardManager boardManager;
-    private readonly List<BoardElement> _selectedElements = new();
     [SerializeField] private LayerMask layerMask;
+    [HideInInspector] public bool isFilling;
+    private readonly List<BoardElement> _selectedElements = new();
 
     private readonly float _selectionRange = 1f;
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
-    public bool isFilling;
 
     private void Update()
     {
-        BallController();
+        TouchController();
     }
 
-    private void BallController()
+    private void TouchController()
     {
         if (isFilling) return;
 
         if (Input.touchCount > 0)
         {
-            Touch touch = Input.GetTouch(0);
+            var touch = Input.GetTouch(0);
 
             if (touch.phase == TouchPhase.Began)
             {
@@ -74,7 +73,7 @@ public class InputManager : MonoBehaviour
             }
         }
     }
-    
+
     private void DeselectAllElements()
     {
         foreach (var element in _selectedElements)
@@ -82,12 +81,12 @@ public class InputManager : MonoBehaviour
             element.Deselect();
         }
     }
-    
+
     private void SetLineRendererColor()
     {
         if (!lineRenderer.material)
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        Color color = _selectedElement.GetColor(_selectedElement.GetNumber());
+        var color = _selectedElement.GetColor(_selectedElement.GetNumber());
         lineRenderer.material.color = color;
     }
 
@@ -122,15 +121,8 @@ public class InputManager : MonoBehaviour
             return; // If there are less than 2 positions, we can't perform the operation
         }
 
-        // Get the elements at the 0th and 1st positions
-        var firstElement = GetElementAtPosition(lineRenderer.GetPosition(0));
-        var secondElement = GetElementAtPosition(lineRenderer.GetPosition(1));
         var lastElement = GetElementAtPosition(lineRenderer.GetPosition(lineRenderer.positionCount - 1));
-        var newNumber = 0;
-        if (firstElement != null && secondElement != null)
-        {
-            newNumber = firstElement.GetNumber() + secondElement.GetNumber();
-        }
+        var newNumber = CalculateThreshold(_selectedElements);
 
         // Destroy the elements at all positions except the last
         for (var i = 0; i < lineRenderer.positionCount - 1; i++) // -1 added to exclude the last position
@@ -148,10 +140,37 @@ public class InputManager : MonoBehaviour
                 });
             }
         }
+
         MoveDownAndFill();
         ResetTemporaryValues();
     }
-    
+
+    private static int CalculateThreshold(List<BoardElement> selectedElements)
+    {
+        var total = 0;
+        foreach (var element in selectedElements)
+        {
+            total += element.GetNumber();
+        }
+
+        int[] thresholds = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
+        var newNumber = thresholds[0];
+
+        for (var i = 0; i < thresholds.Length; i++)
+        {
+            if (total >= thresholds[i])
+            {
+                newNumber = thresholds[i];
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return newNumber;
+    }
+
     private async void MoveDownAndFill()
     {
         isFilling = true;
@@ -168,7 +187,7 @@ public class InputManager : MonoBehaviour
 
     private BoardElement GetElementAtPosition(Vector3 position)
     {
-        var hit = Physics2D.Raycast(position, Vector2.zero , float.MaxValue, layerMask);
+        var hit = Physics2D.Raycast(position, Vector2.zero, float.MaxValue, layerMask);
         if (hit.collider != null)
         {
             return hit.collider.TryGetComponent(out BoardElement element) ? element : null;
@@ -176,12 +195,4 @@ public class InputManager : MonoBehaviour
 
         return null;
     }
-    
-#if UNITY_EDITOR
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectionRange);
-    }
-#endif
 }

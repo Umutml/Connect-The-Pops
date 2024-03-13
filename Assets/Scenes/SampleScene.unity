@@ -205,7 +205,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &538339210
 GameObject:
@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 538339212}
   - component: {fileID: 538339211}
   m_Layer: 0
-  m_Name: BoardBackground
+  m_Name: BoardBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -289,7 +289,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1488925840
 GameObject:
@@ -303,7 +303,7 @@ GameObject:
   - component: {fileID: 1488925841}
   - component: {fileID: 1488925843}
   m_Layer: 0
-  m_Name: InputManager
+  m_Name: PlayerController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +342,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &1488925843
 LineRenderer:
@@ -485,7 +485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e547afedcd57ce841b950e7d245ae61a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSize: 30
+  initialSize: 25
   elementPrefab: {fileID: 7423321644147278806, guid: 6e615b81b2882f7409c1e266ce825429, type: 3}
 --- !u!1 &2043727095
 GameObject:
@@ -516,7 +516,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b8beb4b99f77d246b00f5c229c07948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputManager: {fileID: 1488925841}
+  playerController: {fileID: 1488925841}
 --- !u!4 &2043727097
 Transform:
   m_ObjectHideFlags: 0
@@ -530,5 +530,5 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

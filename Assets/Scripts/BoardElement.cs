@@ -11,8 +11,6 @@ public class BoardElement : MonoBehaviour
     [SerializeField] private GameObject ringShapeTexture;
     [SerializeField] private CircleCollider2D circleCollider2D;
 
-    private Vector3 _defaultScale;
-    
     private readonly Dictionary<int, Color> _numberToColor = new()
     {
         { 2, new Color(0.91f, 0.4f, 0.56f) },
@@ -27,6 +25,8 @@ public class BoardElement : MonoBehaviour
         { 1024, new Color(0.6f, 0.43f, 0.82f) },
         { 2048, new Color(0.91f, 0.4f, 0.56f) }
     };
+
+    private Vector3 _defaultScale;
 
 
     private void Awake()
@@ -94,7 +94,7 @@ public class BoardElement : MonoBehaviour
             var formattedText = thousands + "K";
             return formattedText;
         }
-        
+
         ringShapeTexture.SetActive(false);
         return elementNumber.ToString();
     }
