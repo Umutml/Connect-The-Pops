@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonGeneric<GameManager>
 {
-    [SerializeField] private int targetFrameRate = 120;
+    private int _targetFrameRate = 120;
     [SerializeField] private TextMeshProUGUI scoreText;
     private int _globalScore;
     private const int ScoreMultiplier = 10;
@@ -12,7 +12,8 @@ public class GameManager : SingletonGeneric<GameManager>
     public override void Awake()
     {
         base.Awake();
-        Application.targetFrameRate = targetFrameRate;
+        Application.targetFrameRate = _targetFrameRate;
+        QualitySettings.vSyncCount = 0;
         SetScoreUI(0);
     }
 

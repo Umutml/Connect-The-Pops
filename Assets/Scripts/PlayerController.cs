@@ -134,14 +134,15 @@ public class PlayerController : MonoBehaviour
                 hit.collider.transform.DOMove(lastElement.transform.position, 0.20f).OnComplete(() =>
                 {
                     lastElement.SetNumber(totalNumber);
-                    GameManager.Instance.AddScore(totalNumber);
+                    
                     lastElement.Deselect(); // Deselect the last element scale it down
                     boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
                     ObjectPool.Instance.Return(hit.collider.gameObject);
                 });
             }
         }
-
+        
+        
         MoveDownAndFill();
         ResetTemporaryValues();
     }
@@ -175,6 +176,8 @@ public class PlayerController : MonoBehaviour
     private async void MoveDownAndFill()
     {
         isFilling = true;
+        var totalNumber = CalculateThreshold(_selectedElements);
+        GameManager.Instance.AddScore(totalNumber);
         await Task.Delay(201); // Wait for before moving down the elements for animations
         boardManager.MoveDownElements();
     }
