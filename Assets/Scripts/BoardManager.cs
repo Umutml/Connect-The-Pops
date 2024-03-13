@@ -61,7 +61,7 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        await Task.Delay(251); // Wait for 151 milliseconds for animations
+        await Task.Delay(251); // Wait for 251 milliseconds for animations
         FillEmptyCells();
     }
 
