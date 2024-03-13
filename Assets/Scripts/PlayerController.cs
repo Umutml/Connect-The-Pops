@@ -153,14 +153,6 @@ public class PlayerController : MonoBehaviour
         lineRenderer.material.color = color;
     }
 
-    private void EnableColliders()
-    {
-        foreach (var element in _selectedElements)
-        {
-            element.SetCollider(true);
-        }
-    }
-
     private BoardElement GetElementAtTouchPosition(Vector2 touchPosition)
     {
         Vector2 worldPosition = mainCamera.ScreenToWorldPoint(touchPosition);

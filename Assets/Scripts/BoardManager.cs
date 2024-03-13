@@ -2,18 +2,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = System.Random;
 
 public class BoardManager : MonoBehaviour
 {
     private const float SpacingFactor = 0.85f;
-    private static readonly List<int> SpawnableElementValues = new() { 2, 4, 8, 16, 32, 64 };
     public static readonly List<int> ElementValues = new() { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
     [SerializeField] private PlayerController playerController;
 
     private readonly GameObject[,] _gameBoard = new GameObject[5, 5]; // board size (5x5)
     private readonly Random _random = new();
+    private readonly List<int> _spawnableElementValues = new() { 2, 4, 8, 16, 32, 64 };
 
     private readonly Vector2 _startCoordinate = new(-1.7f, -1.7f); // Start coordinate of the board
 
@@ -94,7 +93,7 @@ public class BoardManager : MonoBehaviour
 
     private int GetNumber()
     {
-        var index = SpawnableElementValues[_random.Next(SpawnableElementValues.Count)];
+        var index = _spawnableElementValues[_random.Next(_spawnableElementValues.Count)];
         return index;
     }
 }
