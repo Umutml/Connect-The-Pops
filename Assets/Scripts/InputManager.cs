@@ -139,7 +139,7 @@ public class InputManager : MonoBehaviour
             var hit = Physics2D.Raycast(position, Vector2.zero, float.MaxValue, layerMask);
             if (hit.collider != null)
             {
-                hit.collider.transform.DOMove(lastElement.transform.position, 0.25f).OnComplete(() =>
+                hit.collider.transform.DOMove(lastElement.transform.position, 0.20f).OnComplete(() =>
                 {
                     lastElement.SetNumber(newNumber);
                     lastElement.Deselect(); // Deselect the last element scale it down
@@ -155,7 +155,7 @@ public class InputManager : MonoBehaviour
     private async void MoveDownAndFill()
     {
         isFilling = true;
-        await Task.Delay(251); // Wait for before moving down the elements for animations
+        await Task.Delay(201); // Wait for before moving down the elements for animations
         boardManager.MoveDownElements();
     }
 
