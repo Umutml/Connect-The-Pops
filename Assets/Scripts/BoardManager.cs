@@ -7,7 +7,8 @@ using Random = System.Random;
 public class BoardManager : MonoBehaviour
 {
     private const float SpacingFactor = 0.85f;
-    public static readonly List<int> ElementValues = new() { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
+    public static readonly List<int> ElementValues = new();
+         
     [SerializeField] private PlayerController playerController;
 
     private readonly GameObject[,] _gameBoard = new GameObject[5, 5]; // board size (5x5)
@@ -18,6 +19,13 @@ public class BoardManager : MonoBehaviour
 
     private void Start()
     {
+        // Fill the ElementValues list with powers of 2 from 2^1 to 2^20 = 1.048.576
+        for (int i = 1; i <= 20; i++)
+        {
+            ElementValues.Add((int)Mathf.Pow(2, i));
+            Debug.LogError("ElementValues: " + ElementValues[i - 1]);
+        }   
+        
         // Loop through the 2D array
         for (var row = 0; row < _gameBoard.GetLength(0); row++)
         {
