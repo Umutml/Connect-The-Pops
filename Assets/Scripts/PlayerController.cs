@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool isFilling;
     private readonly List<BoardElement> _selectedElements = new();
 
-    private readonly float _selectionRange = 1f;
+    private readonly float _selectionRange = 1.2f;
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
                 _isDragging = true;
                 lineRenderer.positionCount = 1;
                 lineRenderer.SetPosition(0, _selectedElement.transform.position);
-                _selectedElement.SetCollider(false);
+                // _selectedElement.SetCollider(false);
                 _selectedElements.Add(_selectedElement);
             }
             else if (_isDragging && touch.phase == TouchPhase.Moved)
@@ -53,10 +53,34 @@ public class PlayerController : MonoBehaviour
                 {
                     if (elementAtTouch != _previousElement && elementAtTouch.GetNumber() == _selectedElement.GetNumber())
                     {
+                        if (_selectedElements.Contains(elementAtTouch))
+                        {
+                            if (_selectedElements.Count == 1) return;
+                            if (elementAtTouch == _selectedElements[_selectedElements.Count -2])
+                            {
+                                if (_selectedElements.Count >= 2)
+                                {
+                                    Debug.LogError("Removing the last element");
+                                    lineRenderer.positionCount--;
+                                    lineRenderer.SetPosition(lineRenderer.positionCount - 1, elementAtTouch.transform.position);
+                                    _selectedElements[_selectedElements.Count - 1].Deselect();
+                                    _selectedElements.Remove(_selectedElements[^1]);
+                                }
+                                else
+                                {
+                                    Debug.LogError("Removing the last element and clearing the list");
+                                    _selectedElements.Clear();
+                                    lineRenderer.positionCount = 0;
+                                    _selectedElements[_selectedElements.Count - 1].Deselect();
+                                }
+                            }
+                            return;
+                        }
+                        
                         lineRenderer.positionCount++;
                         lineRenderer.SetPosition(lineRenderer.positionCount - 1, elementAtTouch.transform.position);
                         _previousElement = elementAtTouch;
-                        elementAtTouch.SetCollider(false);
+                        // elementAtTouch.SetCollider(false);
                         elementAtTouch.Select();
                         _selectedElements.Add(elementAtTouch);
                     }
@@ -65,7 +89,7 @@ public class PlayerController : MonoBehaviour
             else if (_isDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled))
             {
                 _isDragging = false;
-                EnableColliders();
+                // EnableColliders();
                 _selectedElement.Deselect(); // Deselect the first selected object
                 DeselectAllElements();
                 DestroyElements();
