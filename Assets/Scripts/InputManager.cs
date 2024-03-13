@@ -27,28 +27,27 @@ public class InputManager : MonoBehaviour
     {
         if (isFilling) return;
 
-        Vector2 mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        BoardElement elementAtMouse = GetElementAtMousePosition();
 
         if (Input.GetMouseButtonDown(0))
         {
-            _selectedElement = elementAtMouse;
+            _selectedElement = GetElementAtMousePosition();
             if (_selectedElement == null) return;
 
             SetLineRendererColor();
-            _selectedElement.Select();
+            _selectedElement.Select();  // Select the element scale it up
             _isDragging = true;
             lineRenderer.positionCount = 1;
             lineRenderer.SetPosition(0, _selectedElement.transform.position);
-            _selectedElement.SetCollider(false);
-            _selectedElements.Add(_selectedElement);
+            _selectedElement.SetCollider(false); // Disable the collider of the selected element
+            _selectedElements.Add(_selectedElement); // Add the first selected element to the list
         }
         else if (_isDragging && Input.GetMouseButton(0))
         {
+            var elementAtMouse = GetElementAtMousePosition();
             if (elementAtMouse == null) return;
 
-            BoardElement lastSelectedElement = _selectedElements[_selectedElements.Count - 1];
-            if (Vector2.Distance(mouseWorldPosition, lastSelectedElement.transform.position) <= _selectionRange)
+            // If the distance between the mouse position and the last selected element is less than the range
+            if (Vector2.Distance(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
             {
                 if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
                 {
