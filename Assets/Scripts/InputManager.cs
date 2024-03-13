@@ -27,46 +27,50 @@ public class InputManager : MonoBehaviour
     {
         if (isFilling) return;
 
-
-        if (Input.GetMouseButtonDown(0))
+        if (Input.touchCount > 0)
         {
-            _selectedElement = GetElementAtMousePosition();
-            if (_selectedElement == null) return;
+            Touch touch = Input.GetTouch(0);
 
-            SetLineRendererColor();
-            _selectedElement.Select();  // Select the element scale it up
-            _isDragging = true;
-            lineRenderer.positionCount = 1;
-            lineRenderer.SetPosition(0, _selectedElement.transform.position);
-            _selectedElement.SetCollider(false); // Disable the collider of the selected element
-            _selectedElements.Add(_selectedElement); // Add the first selected element to the list
-        }
-        else if (_isDragging && Input.GetMouseButton(0))
-        {
-            var elementAtMouse = GetElementAtMousePosition();
-            if (elementAtMouse == null) return;
-
-            // If the distance between the mouse position and the last selected element is less than the range
-            if (Vector2.Distance(mainCamera.ScreenToWorldPoint(Input.mousePosition), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
+            if (touch.phase == TouchPhase.Began)
             {
-                if (elementAtMouse != _previousElement && elementAtMouse.GetNumber() == _selectedElement.GetNumber())
+                _selectedElement = GetElementAtTouchPosition(touch.position);
+                if (_selectedElement == null) return;
+
+                SetLineRendererColor();
+                _selectedElement.Select();
+                _isDragging = true;
+                lineRenderer.positionCount = 1;
+                lineRenderer.SetPosition(0, _selectedElement.transform.position);
+                _selectedElement.SetCollider(false);
+                _selectedElements.Add(_selectedElement);
+            }
+            else if (_isDragging && touch.phase == TouchPhase.Moved)
+            {
+                var elementAtTouch = GetElementAtTouchPosition(touch.position);
+                if (elementAtTouch == null) return;
+
+                if (Vector2.Distance(mainCamera.ScreenToWorldPoint(touch.position), _selectedElements[_selectedElements.Count - 1].transform.position) <= _selectionRange)
                 {
-                    lineRenderer.positionCount++;
-                    lineRenderer.SetPosition(lineRenderer.positionCount - 1, elementAtMouse.transform.position);
-                    _previousElement = elementAtMouse;
-                    elementAtMouse.SetCollider(false);
-                    elementAtMouse.Select();
-                    _selectedElements.Add(elementAtMouse);
+                    if (elementAtTouch != _previousElement && elementAtTouch.GetNumber() == _selectedElement.GetNumber())
+                    {
+                        lineRenderer.positionCount++;
+                        lineRenderer.SetPosition(lineRenderer.positionCount - 1, elementAtTouch.transform.position);
+                        _previousElement = elementAtTouch;
+                        elementAtTouch.SetCollider(false);
+                        elementAtTouch.Select();
+                        _selectedElements.Add(elementAtTouch);
+                    }
                 }
             }
-        }
-        else if (_isDragging && Input.GetMouseButtonUp(0))
-        {
-            _isDragging = false;
-            EnableColliders();
-            DeselectAllElements();
-            DestroyElements();
-            lineRenderer.positionCount = 0;
+            else if (_isDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled))
+            {
+                _isDragging = false;
+                EnableColliders();
+                _selectedElement.Deselect(); // Deselect the first selected object
+                DeselectAllElements();
+                DestroyElements();
+                lineRenderer.positionCount = 0;
+            }
         }
     }
     
@@ -93,13 +97,13 @@ public class InputManager : MonoBehaviour
             element.SetCollider(true);
         }
 
-        _selectedElements.Clear(); // Clear the list for the next use
+        // _selectedElements.Clear(); // Clear the list for the next use
     }
 
-    private BoardElement GetElementAtMousePosition()
+    private BoardElement GetElementAtTouchPosition(Vector2 touchPosition)
     {
-        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        var hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+        Vector2 worldPosition = mainCamera.ScreenToWorldPoint(touchPosition);
+        var hit = Physics2D.Raycast(worldPosition, Vector2.zero);
         if (hit.collider != null)
         {
             return hit.collider.GetComponent<BoardElement>();
@@ -122,7 +126,7 @@ public class InputManager : MonoBehaviour
         var secondElement = GetElementAtPosition(lineRenderer.GetPosition(1));
         var lastElement = GetElementAtPosition(lineRenderer.GetPosition(lineRenderer.positionCount - 1));
         var newNumber = 0;
-        if (firstElement != null && secondElement != null && lastElement != null)
+        if (firstElement != null && secondElement != null)
         {
             newNumber = firstElement.GetNumber() + secondElement.GetNumber();
         }
