@@ -7,7 +7,6 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LineRenderer lineRenderer;
-    [SerializeField] private Material lineMaterial;
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private LayerMask layerMask;
     [HideInInspector] public bool isFilling;
@@ -17,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private bool _isDragging;
     private BoardElement _previousElement;
     private BoardElement _selectedElement;
+    
 
     private void Update()
     {
@@ -122,7 +122,7 @@ public class PlayerController : MonoBehaviour
         }
 
         var lastElement = GetElementAtPosition(lineRenderer.GetPosition(lineRenderer.positionCount - 1));
-        var newNumber = CalculateThreshold(_selectedElements);
+        var totalNumber = CalculateThreshold(_selectedElements);
 
         // Destroy the elements at all positions except the last
         for (var i = 0; i < lineRenderer.positionCount - 1; i++) // -1 added to exclude the last position
@@ -133,7 +133,8 @@ public class PlayerController : MonoBehaviour
             {
                 hit.collider.transform.DOMove(lastElement.transform.position, 0.20f).OnComplete(() =>
                 {
-                    lastElement.SetNumber(newNumber);
+                    lastElement.SetNumber(totalNumber);
+                    GameManager.Instance.AddScore(totalNumber);
                     lastElement.Deselect(); // Deselect the last element scale it down
                     boardManager.SetCellToNull(position); // Set the cell to null before returning the object to the pool
                     ObjectPool.Instance.Return(hit.collider.gameObject);
@@ -153,14 +154,14 @@ public class PlayerController : MonoBehaviour
             total += element.GetNumber();
         }
 
-        int[] thresholds = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
+        var thresholds = BoardManager.ElementValues;
         var newNumber = thresholds[0];
 
-        for (var i = 0; i < thresholds.Length; i++)
+        foreach (var t in thresholds)
         {
-            if (total >= thresholds[i])
+            if (total >= t)
             {
-                newNumber = thresholds[i];
+                newNumber = t;
             }
             else
             {
