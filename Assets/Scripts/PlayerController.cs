@@ -20,46 +20,47 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        TouchController();
+        if (isFilling) return;
+        if (Input.touchCount <= 0) return;
+
+        var touch = Input.GetTouch(0);
+        HandleTouch(touch);
     }
 
-    private void TouchController()
+    private void HandleTouch(Touch touch)
     {
-        if (isFilling) return;
-
-        if (Input.touchCount > 0)
+        switch (touch.phase)
         {
-            var touch = Input.GetTouch(0);
-
-            if (touch.phase == TouchPhase.Began)
-            {
-                _selectedElement = GetElementAtTouchPosition(touch.position);
-                if (_selectedElement == null) return;
-
-                SetLineRendererColor();
-                _selectedElement.Select();
-                _isDragging = true;
-                lineRenderer.positionCount = 1;
-                lineRenderer.SetPosition(0, _selectedElement.transform.position);
-                _selectedElements.Add(_selectedElement);
-            }
-            else if (_isDragging && touch.phase == TouchPhase.Moved)
-            {
+            case TouchPhase.Began:
+                HandleTouchBegan(touch);
+                break;
+            case TouchPhase.Moved:
                 HandleTouchMove(touch);
-            }
-            else if (_isDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled))
-            {
-                _isDragging = false;
-                _selectedElement.Deselect(); // Deselect the first selected object
-                DeselectAllElements();
-                DestroyElements();
-                lineRenderer.positionCount = 0;
-            }
+                break;
+            case TouchPhase.Ended:
+            case TouchPhase.Canceled:
+                HandleTouchEnd();
+                break;
         }
+    }
+
+    private void HandleTouchBegan(Touch touch)
+    {
+        _selectedElement = GetElementAtTouchPosition(touch.position);
+        if (_selectedElement == null) return;
+
+        SetLineRendererColor();
+        _selectedElement.Select();
+        _isDragging = true;
+        lineRenderer.positionCount = 1;
+        lineRenderer.SetPosition(0, _selectedElement.transform.position);
+        _selectedElements.Add(_selectedElement);
     }
 
     private void HandleTouchMove(Touch touch)
     {
+        if (!_isDragging) return;
+
         var elementAtTouch = GetElementAtTouchPosition(touch.position);
         if (elementAtTouch == null) return;
 
@@ -67,6 +68,17 @@ public class PlayerController : MonoBehaviour
         {
             ProcessElementAtTouch(elementAtTouch);
         }
+    }
+
+    private void HandleTouchEnd()
+    {
+        if (!_isDragging) return;
+
+        _isDragging = false;
+        _selectedElement.Deselect(); // Deselect the first selected object
+        DeselectAllElements();
+        DestroyElements();
+        lineRenderer.positionCount = 0;
     }
 
     private bool IsWithinSelectionRange(Touch touch, Vector3 position)
