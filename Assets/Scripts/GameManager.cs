@@ -17,11 +17,6 @@ public class GameManager : SingletonGeneric<GameManager>
         SetScoreUI(0);
     }
 
-    public void RestartGame()
-    {
-        SceneManager.LoadScene(0);
-    }
-
     private void SetScoreUI(int score)
     {
         scoreText.SetText(score.ToString());
