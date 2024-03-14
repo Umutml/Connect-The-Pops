@@ -23,7 +23,6 @@ public class BoardManager : MonoBehaviour
         for (int i = 1; i <= 20; i++)
         {
             ElementValues.Add((int)Mathf.Pow(2, i));
-            Debug.LogError("ElementValues: " + ElementValues[i - 1]);
         }   
         
         // Loop through the 2D array

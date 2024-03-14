@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private LayerMask layerMask;
     [HideInInspector] public bool isFilling;
+    [SerializeField] private BoardElement indicatorObject;
     private readonly List<BoardElement> _selectedElements = new();
 
     private readonly float _selectionRange = 1.2f;
@@ -55,6 +56,7 @@ public class PlayerController : MonoBehaviour
         lineRenderer.positionCount = 1;
         lineRenderer.SetPosition(0, _selectedElement.transform.position);
         _selectedElements.Add(_selectedElement);
+        CalculateTopIndicator(_selectedElements);
     }
 
     private void HandleTouchMove(Touch touch)
@@ -64,7 +66,7 @@ public class PlayerController : MonoBehaviour
         var elementAtTouch = GetElementAtTouchPosition(touch.position);
         if (elementAtTouch == null) return;
 
-        if (IsWithinSelectionRange(touch, _selectedElements[_selectedElements.Count - 1].transform.position))
+        if (IsWithinSelectionRange(touch, _selectedElements[^1].transform.position))
         {
             ProcessElementAtTouch(elementAtTouch);
         }
@@ -78,6 +80,7 @@ public class PlayerController : MonoBehaviour
         _selectedElement.Deselect(); // Deselect the first selected object
         DeselectAllElements();
         DestroyElements();
+        CalculateTopIndicator(_selectedElements);
         lineRenderer.positionCount = 0;
     }
 
@@ -97,13 +100,14 @@ public class PlayerController : MonoBehaviour
             }
 
             AddElementToSelection(elementAtTouch);
+            CalculateTopIndicator(_selectedElements);
         }
     }
 
     private void HandleElementAlreadySelected(BoardElement elementAtTouch)
     {
         if (_selectedElements.Count == 1) return;
-        if (elementAtTouch == _selectedElements[_selectedElements.Count - 2])
+        if (elementAtTouch == _selectedElements[^2])
         {
             RemoveLastElementFromSelection();
         }
@@ -115,15 +119,17 @@ public class PlayerController : MonoBehaviour
         {
             lineRenderer.positionCount--;
             lineRenderer.SetPosition(lineRenderer.positionCount - 1, _selectedElements[^2].transform.position);
-            _selectedElements[_selectedElements.Count - 1].Deselect();
+            _selectedElements[^1].Deselect();
             _selectedElements.Remove(_selectedElements[^1]);
         }
         else
         {
             _selectedElements.Clear();
             lineRenderer.positionCount = 0;
-            _selectedElements[_selectedElements.Count - 1].Deselect();
+            _selectedElements[^1].Deselect();
         }
+
+        CalculateTopIndicator(_selectedElements);
     }
 
     private void AddElementToSelection(BoardElement elementAtTouch)
@@ -133,6 +139,19 @@ public class PlayerController : MonoBehaviour
         _previousElement = elementAtTouch;
         elementAtTouch.Select();
         _selectedElements.Add(elementAtTouch);
+    }
+
+    private void CalculateTopIndicator(List<BoardElement> elements)
+    {
+        if (elements.Count == 0)
+        {
+            indicatorObject.gameObject.SetActive(false);
+            return;
+        }
+
+        indicatorObject.gameObject.SetActive(true);
+        var totalPower = CalculateThreshold(elements);
+        indicatorObject.SetNumber(totalPower);
     }
 
     private void DeselectAllElements()
@@ -159,6 +178,7 @@ public class PlayerController : MonoBehaviour
         {
             return hit.collider.GetComponent<BoardElement>();
         }
+
         return null;
     }
 

@@ -9,7 +9,7 @@ public class BoardElement : MonoBehaviour
     [SerializeField] private TextMeshProUGUI numberText;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private GameObject ringShapeTexture;
-    [SerializeField] private CircleCollider2D circleCollider2D;
+    private CircleCollider2D _circleCollider2D;
 
     private readonly Dictionary<int, Color> _numberToColor = new()
     {
@@ -32,7 +32,7 @@ public class BoardElement : MonoBehaviour
     private void Awake()
     {
         gameObject.SetActive(false);
-        circleCollider2D = GetComponent<CircleCollider2D>();
+        _circleCollider2D = GetComponent<CircleCollider2D>();
         _defaultScale = transform.localScale;
     }
 
@@ -101,6 +101,6 @@ public class BoardElement : MonoBehaviour
 
     public void SetCollider(bool value)
     {
-        circleCollider2D.enabled = value;
+        _circleCollider2D.enabled = value;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonGeneric<GameManager>
 {
-    private int _targetFrameRate = 120;
+    private readonly int _targetFrameRate = 120;
     [SerializeField] private TextMeshProUGUI scoreText;
     private int _globalScore;
     private const int ScoreMultiplier = 10;
@@ -31,10 +31,5 @@ public class GameManager : SingletonGeneric<GameManager>
     {
         _globalScore += score;
         SetScoreUI(_globalScore * ScoreMultiplier);
-    }
-    
-    public void ResultElement()
-    {
-        
     }
 }
